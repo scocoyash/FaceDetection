@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -39,6 +40,7 @@ public class FaceActivity extends AppCompatActivity {
     String accountName;
     String accountEmail;
     String profile;
+    static boolean profileCreatedFlag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +50,8 @@ public class FaceActivity extends AppCompatActivity {
         imageView = findViewById(R.id.imageView);
 
         camera = findViewById(R.id.camera);
+
+        profileCreatedFlag = false;
 
         Bundle receiveBundle = this.getIntent().getExtras();
         accountName = receiveBundle.getString("accountName");
@@ -115,13 +119,14 @@ public class FaceActivity extends AppCompatActivity {
 //                                                    Rect bounds = face.getBoundingBox();
                                                     Log.d(TAG, "Single face Detected");
                                                     //TODO 1: Send the image to our Python Server
-
+                                                    profileCreatedFlag = true;
                                                     Bundle sendBundle = new Bundle();
                                                     sendBundle.putString("accountName", accountName);
                                                     sendBundle.putString("accountEmail", accountEmail);
                                                     //sendBundle.putString("profile", profile);
 
-                                                    Intent mainActivity = new Intent(FaceActivity.this, MainActivity.class);
+                                                    Intent mainActivity = new Intent(FaceActivity.this, MainActivity.class)
+                                                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                                     mainActivity.putExtras(sendBundle);
                                                     startActivity(mainActivity);
                                                     //Toast.makeText(FaceActivity.this, "Single Face Detetion Successful", Toast.LENGTH_LONG).show();
@@ -137,7 +142,7 @@ public class FaceActivity extends AppCompatActivity {
                                                 // Task failed with an exception
                                                 // ...
                                                 Log.d("FaceActivity", "onFailure: " + "Firebase failed to detect face");
-                                                Toast.makeText(FaceActivity.this, "Firebase failed to detect face", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(FaceActivity.this, "Firebase failed to detect face", Toast.LENGTH_LONG).show();
                                             }
                                         });
 

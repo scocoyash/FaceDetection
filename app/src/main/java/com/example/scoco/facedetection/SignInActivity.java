@@ -56,7 +56,7 @@ public class SignInActivity extends AppCompatActivity implements
     public void onStart() {
         super.onStart();
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        updateUI(account);
+        updateUI(account, true);
     }
 
     @Override
@@ -72,10 +72,10 @@ public class SignInActivity extends AppCompatActivity implements
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             // Signed in successfully, show authenticated UI.
-            updateUI(account);
+            updateUI(account, false);
         } catch (ApiException e) {
             Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
-            updateUI(null);
+            updateUI(null, false);
         }
     }
 
@@ -89,7 +89,7 @@ public class SignInActivity extends AppCompatActivity implements
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        updateUI(null);
+                        updateUI(null, false);
                     }
                 });
     }
@@ -99,32 +99,56 @@ public class SignInActivity extends AppCompatActivity implements
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        updateUI(null);
+                        updateUI(null, false);
                     }
                 });
     }
 
-    private void updateUI(@Nullable GoogleSignInAccount account) {
+    private void updateUI(@Nullable GoogleSignInAccount account, boolean previouslySignedIn) {
         if (account != null) {
-            mStatusTextView.setText(getString(R.string.signed_in_fmt, account.getDisplayName()));
 
-            Bundle sendBundle = new Bundle();
-            sendBundle.putString("accountName", account.getDisplayName());
-            sendBundle.putString("accountEmail", account.getEmail());
-            //sendBundle.putString("profile", String.valueOf(account.getPhotoUrl()));
+            if(previouslySignedIn == false ) {
+                //TODO: Put this data in MySqlite and remove passing of data from Intents
+                chooseActivity(account, "FaceActivity");
 
-            Intent faceActivity = new Intent(SignInActivity.this, FaceActivity.class);
-            faceActivity.putExtras(sendBundle);
-            startActivity(faceActivity);
-
+            }else{
+                //TODO: Put this data in MySqlite and remove passing of data from Intents
+                chooseActivity(account, "MainActivity");
+            }
             //findViewById(R.id.sign_in_button).setVisibility(View.GONE);
             //findViewById(R.id.sign_out_and_disconnect).setVisibility(View.VISIBLE);
         } else {
-            mStatusTextView.setText(R.string.signed_out);
+            //mStatusTextView.setText(R.string.signed_out);
 
-            findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
-            findViewById(R.id.sign_out_and_disconnect).setVisibility(View.GONE);
+            //findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
+            //findViewById(R.id.sign_out_and_disconnect).setVisibility(View.GONE);
         }
+    }
+
+    private void chooseActivity(GoogleSignInAccount account, String activityName){
+        Bundle sendBundle = new Bundle();
+        sendBundle.putString("accountName", account.getDisplayName());
+        sendBundle.putString("accountEmail", account.getEmail());
+        //sendBundle.putString("profile", String.valueOf(account.getPhotoUrl()));
+
+        switch (activityName) {
+            case "MainActivity":
+                Intent mainActivity = new Intent(SignInActivity.this, MainActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mainActivity.putExtras(sendBundle);
+                startActivity(mainActivity);
+                break;
+            case "FaceActivity":
+                Intent faceActivity = new Intent(SignInActivity.this, FaceActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                faceActivity.putExtras(sendBundle);
+                startActivity(faceActivity);
+                //finishActivity(0);
+                break;
+        }
+
     }
 
     @Override

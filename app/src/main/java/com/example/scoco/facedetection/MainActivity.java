@@ -2,6 +2,7 @@ package com.example.scoco.facedetection;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.text.LoginFilter;
@@ -17,6 +18,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -28,6 +37,18 @@ public class MainActivity extends AppCompatActivity
     private TextView title;
     private TextView subtitle;
 
+    private GoogleSignInClient mGoogleSignInClient;
+
+    @Override
+    protected void onStart() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .requestProfile()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        super.onStart();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,7 +142,17 @@ public class MainActivity extends AppCompatActivity
             Log.d(TAG, "Events Clicked");
         } else if (id == R.id.previousEvents) {
             Log.d(TAG, "Previous Events Clicked");
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.sign_out) {
+            Log.d(TAG, "Sign Out Clicked");
+            mGoogleSignInClient.signOut()
+                    .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Intent signInActivity = new Intent(MainActivity.this, SignInActivity.class);
+                            finishAffinity();
+                            startActivity(signInActivity);
+                        }
+                    });
 
         }
 
