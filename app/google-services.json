@@ -16,11 +16,7 @@
       "oauth_client": [
         {
           "client_id": "233931557173-g6m7gceduo12r3jqcq119m69t29v7puq.apps.googleusercontent.com",
-          "client_type": 3,
-           "android_info" : { 
-            "package_name": "com.example.scoco.facedetection", 
-            "certificate_hash": "09FF5141BC47EABAD919B076A450BC3480B07F65"  
-          } 
+          "client_type": 3
         }
       ],
       "api_key": [

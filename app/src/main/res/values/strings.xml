@@ -22,4 +22,7 @@
 
     <string name="server_client_id">233931557173-ml2jkje1bp6v26kh8sc6j2h843l1najk.apps.googleusercontent.com</string>
 
+    <string name="facebook_app_id">701576336880658</string>
+    <string name="fb_login_protocol_scheme">fb701576336880658</string>
+
 </resources>
