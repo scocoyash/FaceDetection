@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,22 +24,15 @@ import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.ml.vision.FirebaseVision;
-import com.google.firebase.ml.vision.common.FirebaseVisionImage;
-import com.google.firebase.ml.vision.face.FirebaseVisionFace;
-import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector;
-import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions;
+
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import pl.aprilapps.easyphotopicker.DefaultCallback;
@@ -67,12 +59,11 @@ public class FaceActivity extends AppCompatActivity {
         imageView = findViewById(R.id.imageView);
         mLoadingIndicator = (ProgressBar) findViewById(R.id.progressBar);
 
-        profileCreatedFlag = false;
+        profileCreatedFlag = false; // TODO FOR WHAT ?
 
         Bundle receiveBundle = this.getIntent().getExtras();
         accountName = receiveBundle.getString("accountName");
         accountEmail = receiveBundle.getString("accountEmail");
-        //profile = receiveBundle.getString("profile");
 
         Log.d(TAG, "Received Data from SignInIntent: " + accountName + " " + accountEmail + " " + profile);
         openDialog();
@@ -96,72 +87,12 @@ public class FaceActivity extends AppCompatActivity {
                 bitmap = new BitmapFactory().decodeFile(imageFile.getAbsolutePath());
                 imageView.setImageBitmap(bitmap);
 
-                sendDataToFirebase(imageFile);
+                //sendDataToFirebase(imageFile);
                 //TODO: send Data to Python Server
-                //sendDataToServer();
+                    sendDataToServer();
             }
 
         });
-    }
-
-    private void sendDataToFirebase(final File imageFile){
-
-        mLoadingIndicator.setVisibility(View.VISIBLE);
-        FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(new BitmapFactory().decodeFile(imageFile.getAbsolutePath()));
-
-        FirebaseVisionFaceDetectorOptions options =
-                new FirebaseVisionFaceDetectorOptions.Builder()
-                        .setPerformanceMode(FirebaseVisionFaceDetectorOptions.ACCURATE)
-                        .setLandmarkMode(FirebaseVisionFaceDetectorOptions.NO_LANDMARKS)
-                        .setClassificationMode(FirebaseVisionFaceDetectorOptions.NO_CLASSIFICATIONS)
-                        .setContourMode(FirebaseVisionFaceDetectorOptions.ALL_CONTOURS)
-                        .build();
-
-
-        FirebaseVisionFaceDetector detector = FirebaseVision.getInstance()
-                .getVisionFaceDetector(options);
-
-        Task<List<FirebaseVisionFace>> result =
-                detector.detectInImage(image)
-                        .addOnSuccessListener(
-                                new OnSuccessListener<List<FirebaseVisionFace>>() {
-                                    @Override
-                                    public void onSuccess(List<FirebaseVisionFace> faces) {
-
-                                        Log.d(TAG, "Faces Detected by Firebase : " + faces.size());
-
-                                        if(faces.size() > 1){
-                                            // Error
-                                            Log.d(TAG, "Mutiple faces Detected");
-                                            Toast.makeText(FaceActivity.this, "Mutiple faces Detected. Please submit single picture", Toast.LENGTH_LONG).show();
-                                        }
-                                        else if(faces.size() == 1){
-//                                                    FirebaseVisionFace face = faces.get(0);
-//                                                    Rect bounds = face.getBoundingBox();
-                                            Log.d(TAG, "Single face Detected");
-
-                                            //TODO 1: Send the image to our Python Server
-                                            profileCreatedFlag = true;
-                                            mLoadingIndicator.setVisibility(View.INVISIBLE);
-                                            changeActivity();
-                                            //Toast.makeText(FaceActivity.this, "Single Face Detetion Successful", Toast.LENGTH_LONG).show();
-                                        }else{
-                                            Log.d(TAG, "No Face Detected ");
-                                        }
-
-                                    }
-                                })
-                        .addOnFailureListener(
-                                new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        // Task failed with an exception
-                                        // ...
-                                        Log.d("FaceActivity", "onFailure: " + "Firebase failed to detect face");
-                                        Toast.makeText(FaceActivity.this, "Firebase failed to detect face", Toast.LENGTH_LONG).show();
-                                    }
-                                });
-
     }
 
     private void changeActivity(){
@@ -220,28 +151,25 @@ public class FaceActivity extends AppCompatActivity {
 
     }
 
-    private void sendDataToServer(){
+    private void sendDataToServer() {
 
         mLoadingIndicator.setVisibility(View.VISIBLE);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        bitmap.compress(Bitmap.CompressFormat.WEBP, 75, baos);
         byte[] imageBytes = baos.toByteArray();
         final String imageString = Base64.encodeToString(imageBytes, Base64.DEFAULT);
 
-        String URL ="http://192.168.1.010";
+        String URL ="http://192.168.0.16:8080/image_recog";
         //sending image to server
         StringRequest request = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>(){
             @Override
             public void onResponse(String s) {
-                if(s.equals("true")){
-                    Toast.makeText(FaceActivity.this, "Uploaded Successful", Toast.LENGTH_LONG).show();
-                    mLoadingIndicator.setVisibility(View.INVISIBLE);
-                    changeActivity();
-                }
-                else{
-                    Toast.makeText(FaceActivity.this, "Some error occurred!", Toast.LENGTH_LONG).show();
-                }
+                // TODO Receive the unique id of user and store it in sql db, also receive data of user if already created before
+                Toast.makeText(FaceActivity.this, "Uploaded Successful", Toast.LENGTH_LONG).show();
+                mLoadingIndicator.setVisibility(View.INVISIBLE);
+                changeActivity();
+
             }
         },new Response.ErrorListener(){
             @Override
@@ -253,13 +181,29 @@ public class FaceActivity extends AppCompatActivity {
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> parameters = new HashMap<String, String>();
                 parameters.put("image", imageString);
+                parameters.put("name", "TakeImage");
                 parameters.put("email", accountEmail);
                 return parameters;
             }
         };
 
         RequestQueue rQueue = Volley.newRequestQueue(FaceActivity.this);
-        rQueue.add(request);
+        rQueue.add(request).setRetryPolicy(new RetryPolicy() {
+            @Override
+            public int getCurrentTimeout() {
+                return 150000;
+            }
+
+            @Override
+            public int getCurrentRetryCount() {
+                return 0; //retry turn off
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+
+            }
+        });
     }
 
 }

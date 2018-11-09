@@ -19,8 +19,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 
-public class SignInActivity extends AppCompatActivity implements
-        View.OnClickListener{
+public class SignInActivity extends AppCompatActivity implements View.OnClickListener{
 
     private static final String TAG = "SignInActivity";
     private static final int RC_SIGN_IN = 9001;
@@ -54,6 +53,7 @@ public class SignInActivity extends AppCompatActivity implements
 
     @Override
     public void onStart() {
+        // TODO Check for a variable somewhere to redirect the user to the faceactivity if the picture is not clicked by him
         super.onStart();
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         updateUI(account, true);
@@ -81,7 +81,7 @@ public class SignInActivity extends AppCompatActivity implements
 
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
+        startActivityForResult(signInIntent, RC_SIGN_IN); //TODO : What does this function do ?
     }
 
     private void signOut() {
