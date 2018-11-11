@@ -28,6 +28,7 @@ import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.scoco.facedetection.models.UserModel;
 
 
 import org.json.JSONException;
@@ -47,9 +48,7 @@ public class FaceActivity extends AppCompatActivity {
 
     private ImageView imageView;
     private Bitmap bitmap;
-    private String accountName;
-    private String accountEmail;
-    private String profile;
+    private UserModel userModel;
     static boolean profileCreatedFlag;
 
     private ProgressBar mLoadingIndicator;
@@ -65,10 +64,7 @@ public class FaceActivity extends AppCompatActivity {
         profileCreatedFlag = false; // TODO FOR WHAT ?
 
         Bundle receiveBundle = this.getIntent().getExtras();
-        accountName = receiveBundle.getString("accountName");
-        accountEmail = receiveBundle.getString("accountEmail");
-
-        Log.d(TAG, "Received Data from SignInIntent: " + accountName + " " + accountEmail + " " + profile);
+        userModel = receiveBundle.getParcelable(UserModel.class.getSimpleName());
         openDialog();
 
     }
@@ -100,8 +96,7 @@ public class FaceActivity extends AppCompatActivity {
 
     private void changeActivity(){
         Bundle sendBundle = new Bundle();
-        sendBundle.putString("accountName", accountName);
-        sendBundle.putString("accountEmail", accountEmail);
+        sendBundle.putParcelable(UserModel.class.getSimpleName(), userModel);
         //sendBundle.putString("profile", profile);
 
         Intent mainActivity = new Intent(FaceActivity.this, MainActivity.class)
@@ -203,8 +198,8 @@ public class FaceActivity extends AppCompatActivity {
                 Map<String, String> parameters = new HashMap<String, String>();
                 parameters.put("image", imageString);
                 parameters.put("name", "TakeImage");
-                parameters.put("email", accountEmail);
-                parameters.put("userName", accountName);
+                parameters.put("userName", userModel.userName);
+                parameters.put("email", userModel.userEmail);
                 return parameters;
             }
         };

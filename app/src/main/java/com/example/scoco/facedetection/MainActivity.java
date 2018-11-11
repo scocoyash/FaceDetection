@@ -16,6 +16,8 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 
+import com.example.scoco.facedetection.models.UserModel;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -27,12 +29,10 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private String accountName;
-    private String accountEmail;
-    private String profile;
 
     private TextView title;
     private TextView subtitle;
+    private UserModel userModel;
 
     private GoogleSignInClient mGoogleSignInClient;
 
@@ -55,10 +55,8 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         Bundle receiveBundle = this.getIntent().getExtras();
-        accountName = receiveBundle.getString("accountName");
-        accountEmail = receiveBundle.getString("accountEmail");
+        userModel = receiveBundle.getParcelable(UserModel.class.getSimpleName());
         //profile = receiveBundle.getString("profile");
-        Log.d(TAG, "Received Data from FaceActivityIntent : " + accountName + " " + accountEmail);
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
@@ -81,8 +79,8 @@ public class MainActivity extends AppCompatActivity
         title = (TextView) headerView.findViewById(R.id.nav_header_title);
         subtitle = (TextView) headerView.findViewById(R.id.nav_header_subtitle);
 
-        title.setText(accountName);
-        subtitle.setText(accountEmail);
+        title.setText(userModel.userName);
+        subtitle.setText(userModel.userEmail);
 
         navigationView.setNavigationItemSelectedListener(this);
     }
@@ -155,20 +153,28 @@ public class MainActivity extends AppCompatActivity
         }
         else if (id == R.id.sign_out) {
             Log.d(TAG, "Sign Out Clicked");
-            mGoogleSignInClient.signOut()
-                    .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            Intent signInActivity = new Intent(MainActivity.this, SignInActivity.class);
-                            finishAffinity();
-                            startActivity(signInActivity);
-                        }
-                    });
-
+            signout();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void signout(){
+        mGoogleSignInClient.signOut()
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        changeActivity();
+                    }
+                });
+        LoginManager.getInstance().logOut();
+    }
+
+    private void changeActivity() {
+        Intent signInActivity = new Intent(MainActivity.this, SignInActivity.class);
+        finishAffinity();
+        startActivity(signInActivity);
     }
 }
