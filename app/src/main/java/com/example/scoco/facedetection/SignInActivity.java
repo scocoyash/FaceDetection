@@ -80,7 +80,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onStart() {
-        // TODO Check for a variable somewhere to redirect the user to the faceactivity if the picture is not clicked by him
+        // TODO Check for a variable in database to redirect the user to the faceactivity if the picture is not clicked by him
         super.onStart();
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         updateUI(account, true);

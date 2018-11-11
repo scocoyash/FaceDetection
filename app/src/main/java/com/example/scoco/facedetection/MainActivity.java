@@ -133,13 +133,27 @@ public class MainActivity extends AppCompatActivity
             i.putExtras(sendBundle);
             startActivity(i);
 
-        } else if (id == R.id.qr) {
+        }
+        else if (id == R.id.qr)
+        {
             Log.d(TAG, "QR Clicked");
-        } else if (id == R.id.events) {
-            Log.d(TAG, "Events Clicked");
-        } else if (id == R.id.previousEvents) {
+            //TODO Get the id from sqlite db
+            Intent i = new Intent(MainActivity.this, QrActivity.class);
+            String uniqueId = "fa592519821e2e0e31ea43cdd2beb20b";
+            i.putExtra(QrActivity.EXTRA_UNIQUEID, uniqueId);
+            startActivity(i);
+        }
+        else if (id == R.id.events)
+        {
+            Log.d("Events clicked", "Events Clicked");
+            Intent i = new Intent(MainActivity.this, EventsActivity.class);
+            startActivity(i);
+
+        }
+        else if (id == R.id.previousEvents) {
             Log.d(TAG, "Previous Events Clicked");
-        } else if (id == R.id.sign_out) {
+        }
+        else if (id == R.id.sign_out) {
             Log.d(TAG, "Sign Out Clicked");
             mGoogleSignInClient.signOut()
                     .addOnCompleteListener(this, new OnCompleteListener<Void>() {

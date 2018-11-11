@@ -30,6 +30,9 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.HashMap;
@@ -166,15 +169,33 @@ public class FaceActivity extends AppCompatActivity {
             @Override
             public void onResponse(String s) {
                 // TODO Receive the unique id of user and store it in sql db, also receive data of user if already created before
-                Toast.makeText(FaceActivity.this, "Uploaded Successful", Toast.LENGTH_LONG).show();
-                mLoadingIndicator.setVisibility(View.INVISIBLE);
-                changeActivity();
+                try {
+                    JSONObject obj = new JSONObject(s);
+                    if(obj.getString("status").equals("success"))
+                    {
+                        Toast.makeText(FaceActivity.this, "Uploaded Successful", Toast.LENGTH_LONG).show();
+                        //TODO Store a variable in DB that indicates that image is taken successfully
+                        //TODO Save the name,surname,contact information into the sqlite db
+                        // TODO Use this information for updating the details in user's profile page
+                        changeActivity();
+                    }
+                    else
+                    {
+                        Toast.makeText(FaceActivity.this, "Error, Please try again in some time! " + obj.getString("status"), Toast.LENGTH_LONG).show();
+                        //TODO Store a variable in DB that indicates that image is not taken successfully
+                        openDialog();
+                    }
+                    mLoadingIndicator.setVisibility(View.INVISIBLE);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
 
             }
         },new Response.ErrorListener(){
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                Toast.makeText(FaceActivity.this, "Some error occurred -> "+volleyError, Toast.LENGTH_LONG).show();;
+                Toast.makeText(FaceActivity.this, "Some error occurred -> "+volleyError, Toast.LENGTH_LONG).show();
             }
         }) {
             @Override
@@ -183,6 +204,7 @@ public class FaceActivity extends AppCompatActivity {
                 parameters.put("image", imageString);
                 parameters.put("name", "TakeImage");
                 parameters.put("email", accountEmail);
+                parameters.put("userName", accountName);
                 return parameters;
             }
         };
