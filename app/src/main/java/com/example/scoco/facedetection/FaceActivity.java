@@ -88,7 +88,7 @@ public class FaceActivity extends AppCompatActivity {
 
                 //sendDataToFirebase(imageFile);
                 //TODO: send Data to Python Server
-                    sendDataToServer();
+                sendDataToServer();
             }
 
         });
@@ -130,8 +130,8 @@ public class FaceActivity extends AppCompatActivity {
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL,"Click a Pic!", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 // Perform Action on Button
-                Log.d(TAG, "Clicking Picture ");
                 EasyImage.openCamera(FaceActivity.this, 100);
+                Log.d("Inside clicking picture", "Clicking Picture ");
             }
         });
 
@@ -158,7 +158,7 @@ public class FaceActivity extends AppCompatActivity {
         byte[] imageBytes = baos.toByteArray();
         final String imageString = Base64.encodeToString(imageBytes, Base64.DEFAULT);
 
-        String URL ="http://192.168.0.16:8080/image_recog";
+        String URL ="http://172.22.245.24:8080/image_recog";
         //sending image to server
         StringRequest request = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>(){
             @Override
