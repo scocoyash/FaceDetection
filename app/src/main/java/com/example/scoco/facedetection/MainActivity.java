@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity
     private UserModel userModel;
 
     private GoogleSignInClient mGoogleSignInClient;
+    private SQLiteDatabaseHandler db;
 
     @Override
     protected void onStart() {
@@ -54,18 +55,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Bundle receiveBundle = this.getIntent().getExtras();
-        userModel = receiveBundle.getParcelable(UserModel.class.getSimpleName());
-        //profile = receiveBundle.getString("profile");
-
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+        db = new SQLiteDatabaseHandler(this);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -79,8 +69,7 @@ public class MainActivity extends AppCompatActivity
         title = (TextView) headerView.findViewById(R.id.nav_header_title);
         subtitle = (TextView) headerView.findViewById(R.id.nav_header_subtitle);
 
-        title.setText(userModel.userName);
-        subtitle.setText(userModel.userEmail);
+        title.setText(db.getUser().firstName + " " + db.getUser().lastName);
 
         navigationView.setNavigationItemSelectedListener(this);
     }
@@ -131,13 +120,23 @@ public class MainActivity extends AppCompatActivity
             i.putExtras(sendBundle);
             startActivity(i);
 
-        } else if (id == R.id.qr) {
+        }
+        else if (id == R.id.qr) {
+            // There is error in FaceActivity due to QR's dependency
             Log.d(TAG, "QR Clicked");
-        } else if (id == R.id.events) {
-            Log.d(TAG, "Events Clicked");
-        } else if (id == R.id.previousEvents) {
+        }
+        else if (id == R.id.events)
+        {
+            Log.d("Events clicked", "Events Clicked");
+            Intent i = new Intent(MainActivity.this, EventsActivity.class);
+            startActivity(i);
+        }
+        else if (id == R.id.previousEvents)
+        {
             Log.d(TAG, "Previous Events Clicked");
-        } else if (id == R.id.sign_out) {
+        }
+        else if (id == R.id.sign_out)
+        {
             Log.d(TAG, "Sign Out Clicked");
             signout();
         }

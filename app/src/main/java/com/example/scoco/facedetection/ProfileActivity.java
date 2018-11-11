@@ -19,10 +19,16 @@ public class ProfileActivity extends AppCompatActivity {
     TextView unameTextView;
     Button updatedetailsButton;
 
+    private SQLiteDatabaseHandler db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+
+        db = new SQLiteDatabaseHandler(this);
+
+        Toast.makeText(this, db.getUser().firstName, Toast.LENGTH_SHORT).show();
 
         Log.d(TAG, "Activity Started");
         Bundle receiveBundle = this.getIntent().getExtras();

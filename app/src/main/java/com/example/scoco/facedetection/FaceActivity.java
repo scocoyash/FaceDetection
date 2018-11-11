@@ -31,6 +31,9 @@ import com.android.volley.toolbox.Volley;
 import com.example.scoco.facedetection.models.UserModel;
 
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.HashMap;
@@ -47,6 +50,7 @@ public class FaceActivity extends AppCompatActivity {
     private Bitmap bitmap;
     private UserModel userModel;
     static boolean profileCreatedFlag;
+    private SQLiteDatabaseHandler db;
 
     private ProgressBar mLoadingIndicator;
 
@@ -54,6 +58,8 @@ public class FaceActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_face);
+
+        db = new SQLiteDatabaseHandler(this);
 
         imageView = findViewById(R.id.imageView);
         mLoadingIndicator = (ProgressBar) findViewById(R.id.progressBar);
@@ -92,13 +98,8 @@ public class FaceActivity extends AppCompatActivity {
     }
 
     private void changeActivity(){
-        Bundle sendBundle = new Bundle();
-        sendBundle.putParcelable(UserModel.class.getSimpleName(), userModel);
-        //sendBundle.putString("profile", profile);
-
         Intent mainActivity = new Intent(FaceActivity.this, MainActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        mainActivity.putExtras(sendBundle);
         startActivity(mainActivity);
     }
 
@@ -155,15 +156,40 @@ public class FaceActivity extends AppCompatActivity {
         byte[] imageBytes = baos.toByteArray();
         final String imageString = Base64.encodeToString(imageBytes, Base64.DEFAULT);
 
-        String URL ="http://192.168.0.16:8080/image_recog";
+        String URL ="http://172.22.245.24:8080/image_recog";
         //sending image to server
         StringRequest request = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>(){
             @Override
             public void onResponse(String s) {
                 // TODO Receive the unique id of user and store it in sql db, also receive data of user if already created before
-                Toast.makeText(FaceActivity.this, "Uploaded Successful", Toast.LENGTH_LONG).show();
-                mLoadingIndicator.setVisibility(View.INVISIBLE);
-                changeActivity();
+                try {
+                    JSONObject obj = new JSONObject(s);
+                    if(obj.getString("status").equals("success"))
+                    {
+
+                        String firstName = obj.getString("firstName");
+                        String lastName = obj.getString("lastName");
+                        String contact = obj.getString("contact");
+                        String id = obj.getString("uniqueId");
+                        User user = new User(id, firstName, lastName, contact);
+                        db.addUser(user);
+                        Toast.makeText(FaceActivity.this, "Uploaded Successful", Toast.LENGTH_LONG).show();
+                        //TODO Store a variable in DB that indicates that image is taken successfully
+                        //TODO Save the name,surname,contact information into the sqlite db
+                        // TODO Use this information for updating the details in user's profile page
+                        changeActivity();
+                    }
+                    else
+                    {
+                        Toast.makeText(FaceActivity.this, "Error, Please try again in some time! " + obj.getString("status"), Toast.LENGTH_LONG).show();
+                        //TODO Store a variable in DB that indicates that image is not taken successfully
+                        openDialog();
+                    }
+                    mLoadingIndicator.setVisibility(View.INVISIBLE);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
 
             }
         },new Response.ErrorListener(){
@@ -178,6 +204,7 @@ public class FaceActivity extends AppCompatActivity {
                 parameters.put("image", imageString);
                 parameters.put("name", "TakeImage");
                 parameters.put("email", userModel.userEmail);
+                parameters.put("userName", userModel.userName);
                 return parameters;
             }
         };

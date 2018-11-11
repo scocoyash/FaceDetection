@@ -39,6 +39,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
 
     private static final String TAG = SignInActivity.class.getSimpleName();
     private static final int RC_SIGN_IN = 9001;
+    private SQLiteDatabaseHandler db;
 
     private GoogleSignInClient mGoogleSignInClient;
 
@@ -51,6 +52,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
+        db = new SQLiteDatabaseHandler(this);
         // Button listeners
         findViewById(R.id.sign_in_button).setOnClickListener(this);
 
@@ -116,6 +118,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     public void onStart() {
         // TODO Check for a variable somewhere to redirect the user to the faceactivity if the picture is not clicked by him
         super.onStart();
+
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         updateUI(account, true);
     }
@@ -150,6 +153,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     private void updateUI(@Nullable GoogleSignInAccount account, boolean previouslySignedIn) {
 
         if (account != null) {
+            // Using Usermodel class here
             UserModel userModel = new UserModel();
             userModel.userName = account.getDisplayName();
             userModel.userEmail = account.getEmail();
