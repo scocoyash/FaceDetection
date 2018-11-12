@@ -14,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.example.scoco.facedetection.models.UserModel;
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         super.onStart();
+        //Toast.makeText(this, db.getUser().id + db.getUser().firstName, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         db = new SQLiteDatabaseHandler(this);
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -155,6 +158,7 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
         LoginManager.getInstance().logOut();
+        //db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
     }
 
     private void changeActivity() {

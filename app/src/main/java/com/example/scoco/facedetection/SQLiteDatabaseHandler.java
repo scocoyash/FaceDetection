@@ -72,7 +72,7 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper{
 
         //Cursor cursor = db.query(TABLE_NAME,COLUMNS,"id=?",new String[]{id},null,null,null,null);
         if(cursor!=null) {
-            cursor.moveToFirst();
+            cursor.moveToLast();
 
 
             User user = new User();

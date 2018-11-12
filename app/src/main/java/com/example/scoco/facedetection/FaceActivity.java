@@ -156,7 +156,7 @@ public class FaceActivity extends AppCompatActivity {
         byte[] imageBytes = baos.toByteArray();
         final String imageString = Base64.encodeToString(imageBytes, Base64.DEFAULT);
 
-        String URL ="http://172.22.245.24:8080/image_recog";
+        String URL ="http://192.168.43.248:8080/image_recog";
         //sending image to server
         StringRequest request = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>(){
             @Override
@@ -173,16 +173,12 @@ public class FaceActivity extends AppCompatActivity {
                         String id = obj.getString("uniqueId");
                         User user = new User(id, firstName, lastName, contact);
                         db.addUser(user);
-                        Toast.makeText(FaceActivity.this, "Uploaded Successful", Toast.LENGTH_LONG).show();
-                        //TODO Store a variable in DB that indicates that image is taken successfully
-                        //TODO Save the name,surname,contact information into the sqlite db
-                        // TODO Use this information for updating the details in user's profile page
+                        Toast.makeText(FaceActivity.this, "Thank you for patience!", Toast.LENGTH_LONG).show();
                         changeActivity();
                     }
                     else
                     {
                         Toast.makeText(FaceActivity.this, "Error, Please try again in some time! " + obj.getString("status"), Toast.LENGTH_LONG).show();
-                        //TODO Store a variable in DB that indicates that image is not taken successfully
                         openDialog();
                     }
                     mLoadingIndicator.setVisibility(View.INVISIBLE);

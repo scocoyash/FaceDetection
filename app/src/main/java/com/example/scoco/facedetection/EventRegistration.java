@@ -26,11 +26,15 @@ public class EventRegistration extends AppCompatActivity implements View.OnClick
     Button Register;
     public static final String EXTRA_EVENTNAME = "event_name";
     String eventName;
+    private SQLiteDatabaseHandler db;
+    String Userid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_registration);
+
+        db = new SQLiteDatabaseHandler(this);
 
         eventName = getIntent().getStringExtra(EXTRA_EVENTNAME);
         Register = (Button) findViewById(R.id.Register);
@@ -40,8 +44,8 @@ public class EventRegistration extends AppCompatActivity implements View.OnClick
     @Override
     public void onClick(View v) {
         //TODO Take the Id of user form the sqlite database and send it to server
-        final String id = "fa592519821e2e0e31ea43cdd2beb20b";
-        String URL ="http://192.168.0.16:8080/image_recog";
+        Userid = db.getUser().id;
+        String URL ="http://192.168.43.248:8080/image_recog";
 
         //sending id to server
         StringRequest request = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>(){
@@ -52,8 +56,7 @@ public class EventRegistration extends AppCompatActivity implements View.OnClick
                     JSONObject obj = new JSONObject(s);
                     if(obj.getString("status").equals("success"))
                     {
-                        Toast.makeText(EventRegistration.this, "Uploaded Successful", Toast.LENGTH_LONG).show();
-                        //TODO store the status of button related to the user id in sqlite db
+                        Toast.makeText(EventRegistration.this, "Registered Successfully", Toast.LENGTH_LONG).show();
                         Register.setEnabled(false);
 
                     }
@@ -77,7 +80,7 @@ public class EventRegistration extends AppCompatActivity implements View.OnClick
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> parameters = new HashMap<String, String>();
                 parameters.put("name", "AddEvent");
-                parameters.put("uniqueId", id);
+                parameters.put("uniqueId", Userid);
                 parameters.put("eventName", eventName);
                 return parameters;
             }

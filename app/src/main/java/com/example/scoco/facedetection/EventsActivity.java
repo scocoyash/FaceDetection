@@ -11,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -25,12 +26,14 @@ public class EventsActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     ListView eventsList;
     ArrayList<String> events;
+    private SQLiteDatabaseHandler db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_events);
 
+        db = new SQLiteDatabaseHandler(this);
         eventsList = (ListView) findViewById(R.id.eventsList);
         Log.d("Inside Events", "Hell yeah!");
 
